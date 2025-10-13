@@ -20,7 +20,7 @@ function ViewReportDialog({ record }: props) {
 
     const handleDownloadPDF = () => {
         const doc = new jsPDF();
-        
+
         // Title
         doc.setFontSize(16);
         doc.text("🩺 Medical AI Voice Agent Report", 20, 20);
@@ -64,6 +64,20 @@ function ViewReportDialog({ record }: props) {
 
         // Save as PDF
         doc.save(`Medical_Report_${moment(new Date(record?.createdOn)).format("YYYYMMDD_HHmm")}.pdf`);
+
+
+        // Medications Mentioned
+        offset += 40;
+        doc.text("Medications Mentioned:", 20, offset);
+        const medications = (record?.report as any)?.medicationsMentioned || [];
+        if (medications.length > 0) {
+            medications.forEach((m: string, i: number) => {
+                doc.text(`- ${m}`, 25, offset + 10 + (i * 10));
+            });
+        } else {
+            doc.text("Not mentioned", 20, offset + 10);
+        }
+
     };
 
     return (
@@ -131,10 +145,25 @@ function ViewReportDialog({ record }: props) {
                                 </div>
                             </div>
 
+                            {/* Medications Mentioned */}
+                            <div>
+                                <h2 className="font-bold text-blue-500 text-lg">Medications Mentioned</h2>
+                                {((record?.report as any)?.medicationsMentioned || []).length > 0 ? (
+                                    <ul className="list-disc pl-6 text-sm text-gray-700">
+                                        {(record?.report as any).medicationsMentioned.map((m: string, i: number) => (
+                                            <li key={i}>{m}</li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-sm text-gray-700">Not mentioned</p>
+                                )}
+                            </div>
+
+
                             {/* Download Button */}
                             <div className="flex justify-center pt-4">
                                 <Button onClick={handleDownloadPDF} variant="default" size="sm">
-                                     Download PDF
+                                    Download PDF
                                 </Button>
                             </div>
 
